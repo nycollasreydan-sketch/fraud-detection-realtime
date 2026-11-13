@@ -1,0 +1,48 @@
+{
+  "model_version": "hybrid-f2-636e3ec9",
+  "review_threshold": 0.014549062358367582,
+  "legit_false_positive_rate": 0.003115693012600229,
+  "n_legit": 65475,
+  "attacks": {
+    "gradual_drift": {
+      "episodes": 60,
+      "transactions": 964,
+      "episode_detection": 0.03333333333333333,
+      "value_prevented": 0.03316839878624614,
+      "tx_recall": 0.002074688796680498,
+      "median_tx_to_detect": 1.5
+    },
+    "mule_account": {
+      "episodes": 60,
+      "transactions": 1677,
+      "episode_detection": 0.9833333333333333,
+      "value_prevented": 0.8827071321939859,
+      "tx_recall": 0.19081693500298152,
+      "median_tx_to_detect": 3.0
+    },
+    "off_hours_burst": {
+      "episodes": 60,
+      "transactions": 702,
+      "episode_detection": 1.0,
+      "value_prevented": 0.826447676112421,
+      "tx_recall": 0.7122507122507122,
+      "median_tx_to_detect": 3.0
+    },
+    "replay": {
+      "episodes": 60,
+      "transactions": 385,
+      "episode_detection": 0.31666666666666665,
+      "value_prevented": 0.19606481481481483,
+      "tx_recall": 0.14025974025974025,
+      "median_tx_to_detect": 3.0
+    },
+    "structuring": {
+      "episodes": 60,
+      "transactions": 1898,
+      "episode_detection": 0.8166666666666667,
+      "value_prevented": 0.6614133199619033,
+      "tx_recall": 0.1886195995785037,
+      "median_tx_to_detect": 4.0
+    }
+  }
+}

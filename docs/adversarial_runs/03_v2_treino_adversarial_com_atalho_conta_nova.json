@@ -1,0 +1,48 @@
+{
+  "model_version": "hybrid-f2-ebf7ba73",
+  "review_threshold": 0.02396792861131633,
+  "legit_false_positive_rate": 0.004841542573501337,
+  "n_legit": 65475,
+  "attacks": {
+    "gradual_drift": {
+      "episodes": 60,
+      "transactions": 964,
+      "episode_detection": 1.0,
+      "value_prevented": 0.9955364684515051,
+      "tx_recall": 0.983402489626556,
+      "median_tx_to_detect": 1.0
+    },
+    "mule_account": {
+      "episodes": 60,
+      "transactions": 1677,
+      "episode_detection": 1.0,
+      "value_prevented": 1.0,
+      "tx_recall": 1.0,
+      "median_tx_to_detect": 1.0
+    },
+    "off_hours_burst": {
+      "episodes": 60,
+      "transactions": 702,
+      "episode_detection": 1.0,
+      "value_prevented": 0.9322581746288388,
+      "tx_recall": 0.9344729344729344,
+      "median_tx_to_detect": 2.0
+    },
+    "replay": {
+      "episodes": 60,
+      "transactions": 385,
+      "episode_detection": 1.0,
+      "value_prevented": 1.0,
+      "tx_recall": 1.0,
+      "median_tx_to_detect": 1.0
+    },
+    "structuring": {
+      "episodes": 60,
+      "transactions": 1898,
+      "episode_detection": 1.0,
+      "value_prevented": 1.0,
+      "tx_recall": 1.0,
+      "median_tx_to_detect": 1.0
+    }
+  }
+}
