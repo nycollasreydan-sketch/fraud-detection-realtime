@@ -15,7 +15,7 @@ elif [ -n "${KAGGLE_API_TOKEN:-}" ]; then
     && ~/.local/bin/kaggle datasets download -d mlg-ulb/creditcardfraud -p data --unzip \
     || echo "AVISO: falhou baixar o dataset"
 else
-  echo "AVISO: secret KAGGLE_API_TOKEN não configurado; baixe o creditcard.csv manualmente para data/"
+  echo "AVISO: sem token do Kaggle; copie o creditcard.csv manualmente para data/"
 fi
 
 echo "==> Pronto. Rode 'claude' para começar."
