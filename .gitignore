@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dados (creditcard.csv tem 144 MB, acima do limite do GitHub)
+data/
