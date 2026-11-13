@@ -1,0 +1,124 @@
+name: fraud
+
+x-app: &app
+  image: fraud-detection-realtime:local
+  build: .
+  environment: &app-env
+    FRAUD_DATABASE_URL: postgresql+asyncpg://fraud:fraud@postgres:5432/fraud
+    FRAUD_REDIS_URL: redis://redis:6379/0
+    FRAUD_MODEL_DIR: /app/artifacts/model
+    FRAUD_OTLP_ENDPOINT: http://jaeger:4318/v1/traces
+    FRAUD_API_URL: http://api:8000
+  volumes:
+    - artifacts:/app/artifacts
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fraud
+      POSTGRES_PASSWORD: fraud
+      POSTGRES_DB: fraud
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fraud -d fraud"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    # AOF ligado: a fila sobrevive a um restart do Redis
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    ports: ["6379:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    <<: *app
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  trainer:
+    <<: *app
+    # treina só se ainda não houver modelo no volume; `make train` força o retreino
+    command: ["python", "-m", "fraud.ml.train", "--out", "/app/artifacts/model", "--if-missing"]
+    restart: "no"
+
+  api:
+    <<: *app
+    environment:
+      <<: *app-env
+      FRAUD_SERVICE_NAME: fraud-api
+    command: ["uvicorn", "fraud.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      trainer: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  worker:
+    <<: *app
+    command: ["python", "-m", "fraud.worker.main"]
+    # dois consumidores no mesmo grupo: os locks por entidade mantêm o estado consistente
+    deploy:
+      replicas: 2
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      trainer: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9100/metrics', timeout=3)"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  dashboard:
+    <<: *app
+    command:
+      - streamlit
+      - run
+      - src/fraud/dashboard/app.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+      - --server.headless=true
+      - --browser.gatherUsageStats=false
+    ports: ["8501:8501"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    volumes: ["./ops/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    ports: ["9090:9090"]
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.64.0
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports: ["16686:16686"]
+
+  # utilitários sob demanda: `docker compose run --rm tools <comando>`
+  tools:
+    <<: *app
+    profiles: ["tools"]
+    depends_on:
+      api: { condition: service_healthy }
+    command: ["python", "-m", "fraud.simulation.demo"]
+
+volumes:
+  pgdata:
+  redisdata:
+  artifacts:

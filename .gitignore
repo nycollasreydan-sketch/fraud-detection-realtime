@@ -221,3 +221,7 @@ __marimo__/
 
 # Dados (creditcard.csv tem 144 MB, acima do limite do GitHub)
 data/
+
+# projeto
+artifacts/
+*.log
