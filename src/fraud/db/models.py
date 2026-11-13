@@ -45,6 +45,7 @@ class Transaction(Base):
         Index("ix_transactions_customer_occurred", "customer_id", "occurred_at"),
         Index("ix_transactions_counterparty_occurred", "counterparty_id", "occurred_at"),
         Index("ix_transactions_status_created", "status", "created_at"),
+        Index("ix_transactions_created", "created_at"),  # janelas de tempo do /stats
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

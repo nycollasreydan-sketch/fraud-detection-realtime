@@ -3,7 +3,8 @@
 `IsolationForest.score_samples` do scikit-learn é ótimo em lote, mas para UMA linha paga
 validação de entrada e orquestração de threads: ~10 ms medidos, 90% da latência de
 inferência. Percorrer as árvores direto nos arrays dá o mesmo número em uma fração do tempo.
-A equivalência com o scikit-learn é garantida por teste (tests/unit/test_fast_iforest.py).
+A equivalência com o scikit-learn é garantida por teste
+(tests/unit/test_ml.py::test_fast_iforest_matches_sklearn).
 """
 
 from __future__ import annotations

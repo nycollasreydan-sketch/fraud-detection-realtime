@@ -236,7 +236,7 @@ Todo erro usa o mesmo envelope:
 
 ## Testes
 
-`make test` roda as três suítes, 113 testes em cerca de 2 minutos (sobe PostgreSQL e Redis via
+`make test` roda as três suítes, 119 testes em cerca de 2 minutos (sobe PostgreSQL e Redis via
 Compose):
 
 | Suíte | O que cobre |
@@ -285,8 +285,15 @@ docs/             pesquisa, arquitetura, decisões, relatórios
 | [MODEL_REPORT.md](docs/MODEL_REPORT.md) | Métricas, ablação, importância, latência (gerado pelo treino) |
 | [ADVERSARIAL.md](docs/ADVERSARIAL.md) | Fase D: ataques, alvo, ciclo de melhoria, atalhos do simulador, risco residual |
 | [BENCHMARK_KAGGLE.md](docs/BENCHMARK_KAGGLE.md) | O mesmo código de treino no dataset real da ULB |
+| [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Revisão crítica: dívidas técnicas, riscos de produção e o que falta para escalar |
+| [INTERVIEW.md](docs/INTERVIEW.md) | Resumo em dois minutos, 25 perguntas com resposta e os trade-offs de cada decisão |
+| [STUDY_PATH.md](docs/STUDY_PATH.md) | Ordem de leitura do código, com conceito e pergunta de verificação por passo |
+| [EXTENSIONS.md](docs/EXTENSIONS.md) | Cinco extensões, da mais fácil à mais difícil |
 
 ## Limitações conhecidas
+
+Resumo abaixo; a revisão completa, com correção sugerida e esforço de cada item, está em
+[docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
 
 - **Dados sintéticos.** O simulador é meu, os ataques são meus. Vale o método e as
   comparações relativas, não os números absolutos.

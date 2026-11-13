@@ -252,6 +252,7 @@ class Worker:
                     log.error("poll_error", error=repr(exc))
                     await asyncio.sleep(1.0)
         finally:
+            stop.set()  # se o laço saiu por exceção, a manutenção ainda espera o sinal
             await maintenance
             log.info("worker_stopped", consumer=self.consumer)
 

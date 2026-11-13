@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -189,6 +190,13 @@ def test_save_and_load_roundtrip(model: FraudModel, tmp_path: Path) -> None:
     loaded = FraudModel.load(tmp_path)
     assert loaded.version == model.version
     assert loaded.score_one(feats).score == pytest.approx(before, abs=1e-12)
+
+
+def test_load_rejects_model_from_another_feature_code(model: FraudModel, tmp_path: Path) -> None:
+    stale = replace(model, features=[*model.features, "feature_que_o_codigo_nao_calcula"])
+    stale.save(tmp_path)
+    with pytest.raises(ValueError, match="feature_que_o_codigo_nao_calcula"):
+        FraudModel.load(tmp_path)
 
 
 def test_load_rejects_unexpected_artifact(tmp_path: Path) -> None:

@@ -116,7 +116,7 @@ model_version    text NULL
 features         jsonb NULL   (vetor usado: auditoria e retreino)
 explanation      jsonb NULL   (top contribuições TreeSHAP)
 error            text NULL
-created_at, processed_at  tstz
+created_at, processed_at  tstz  (índice em created_at: janelas do /stats)
 ```
 
 Enums são `VARCHAR` com `CHECK` (migração simples de alterar). O alerta repete cliente,

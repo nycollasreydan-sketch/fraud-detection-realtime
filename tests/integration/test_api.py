@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
+import pytest
 from redis.asyncio import Redis
 
 from fraud.api.app import create_app
@@ -85,6 +86,30 @@ async def test_idempotency_key_with_different_payload_conflicts(client: httpx.As
     await client.post("/transactions", json=payload(), headers=headers)
     response = await client.post("/transactions", json=payload(amount="999.00"), headers=headers)
     assert_error(response, 409, "conflict")
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [{"currency": "USD"}, {"channel": "pos"}, {"category": "travel"}, {"latitude": 10.0}],
+    ids=lambda c: next(iter(c)),
+)
+async def test_idempotency_conflict_covers_every_payload_field(
+    client: httpx.AsyncClient, changed: dict[str, object]
+) -> None:
+    headers = {"Idempotency-Key": "abc-789"}
+    await client.post("/transactions", json=payload(), headers=headers)
+    response = await client.post("/transactions", json=payload(**changed), headers=headers)
+    assert_error(response, 409, "conflict")
+
+
+async def test_idempotent_retry_with_explicit_event_time(client: httpx.AsyncClient) -> None:
+    headers = {"Idempotency-Key": "abc-790"}
+    body = payload(occurred_at="2026-01-05T12:00:00.123456-03:00")
+    first = await client.post("/transactions", json=body, headers=headers)
+    again = await client.post("/transactions", json=body, headers=headers)
+    assert (first.status_code, again.status_code) == (202, 200)
+    other = payload(occurred_at="2026-01-05T12:00:01-03:00")
+    assert_error(await client.post("/transactions", json=other, headers=headers), 409, "conflict")
 
 
 async def test_queue_down_returns_503_but_keeps_transaction(

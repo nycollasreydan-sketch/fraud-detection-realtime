@@ -31,7 +31,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from fraud.domain import Decision
-from fraud.features.compute import FEATURE_DESCRIPTIONS
+from fraud.features.compute import ALL_FEATURES, FEATURE_DESCRIPTIONS
 from fraud.ml import drift
 from fraud.ml.dataset import Dataset
 from fraud.ml.evaluate import threshold_for_fpr, threshold_for_precision
@@ -181,6 +181,14 @@ class FraudModel:
         model = joblib.load(Path(directory) / MODEL_FILE)
         if not isinstance(model, FraudModel):
             raise TypeError(f"artefato inesperado em {directory}: {type(model)!r}")
+        # Artefato treinado com outra versão do código de features: sem esta checagem o
+        # worker subiria "saudável" e mandaria toda transação para a DLQ com KeyError.
+        unknown = sorted(set(model.features) - set(ALL_FEATURES))
+        if unknown:
+            raise ValueError(
+                f"modelo {model.version} pede features que este código não calcula: {unknown}; "
+                "retreine (`make train`) ou volte o código para a versão do artefato"
+            )
         return model
 
 

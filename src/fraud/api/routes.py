@@ -65,12 +65,22 @@ ERRORS: dict[int | str, dict[str, Any]] = {
 
 
 def _same_payload(row: Transaction, body: TransactionIn) -> bool:
-    return (
+    """Compara todos os campos enviados. `occurred_at` só entra quando o cliente o mandou:
+    omitido, o padrão é "agora" e difere a cada tentativa."""
+    same = (
         row.customer_id == body.customer_id
         and row.counterparty_id == body.counterparty_id
         and row.amount == body.amount
+        and row.currency == body.currency
+        and row.channel == body.channel.value
+        and row.category == body.category
         and row.device_id == body.device_id
+        and row.latitude == body.latitude
+        and row.longitude == body.longitude
     )
+    if body.occurred_at is not None:
+        same = same and row.occurred_at == body.event_time()
+    return same
 
 
 @router.post(

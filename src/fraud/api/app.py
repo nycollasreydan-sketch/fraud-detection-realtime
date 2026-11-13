@@ -68,7 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def observability(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+        request_id = request.headers.get("x-request-id", "")[:64] or uuid.uuid4().hex
         structlog.contextvars.bind_contextvars(request_id=request_id)
         start = time.perf_counter()
         status = 500
